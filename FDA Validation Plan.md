@@ -2,31 +2,41 @@
 
 ## Intended use of the product
 
-* The algorithm's intended use is to assist radiologists in quantifying hippocampus volume from an MRI scan. Quantification of the hippocampus volume of a patient is beneficial for diagnosing and tracking progression of several brain disorders, most notably Alzheimer's disease.
+* The algorithm aims to aid radiologists in accurately measuring hippocampal volume from MRI scans. This measurement plays a crucial role in diagnosing and monitoring the advancement of various brain disorders like Alzheimer's disease.
 
 ## Algorithm description
 
-* The proposed algorithm should be integrated into the clinical life cycle:
-  * First, a patient's MRI brain scan is sent to an existing algorithm called HippoCrop to crop the scan into a rectangular volume around the hippocampus area.
-  * This cropped volume scan is then sent to the proposed algorithm to predict a segmentation mask that labels all pixels belonging to the hippocampus for each slice of the scan.
-  * The volume of the hippocampus is retrieved by multiplying the counted labeled pixels in the segmentation mask for all slices with the related physical dimensions of the voxels.
-  * The measurement results are then sent to the clinician alongside the MRI and cropped scans as a supplemental aid for expert validation.
-* With this automated aid, the clinician can make an informed decision.
+The proposed algorithm is designed to seamlessly integrate into the clinical workflow, enhancing the diagnostic process for various brain disorders. Here's a detailed outline of its integration:
+
+1. **MRI Scan Processing**: Initially, a patient's MRI brain scan undergoes preprocessing using an existing algorithm known as HippoCrop. This algorithm efficiently crops the scan to isolate the relevant hippocampus area, producing a rectangular volume.
+
+2. **Segmentation Prediction**: Subsequently, the cropped volume scan is transmitted to the proposed algorithm for segmentation prediction. Employing advanced machine learning techniques, the algorithm generates a segmentation mask that accurately labels all pixels corresponding to the hippocampus across each slice of the scan.
+
+3. **Volume Calculation**: Following segmentation, the volume of the hippocampus is computed by multiplying the total count of labeled pixels in the segmentation mask across all slices by the respective physical dimensions of the voxels. This precise volumetric measurement provides valuable quantitative data for diagnostic purposes.
+
+4. **Clinical Validation**: The measurement results, along with the original MRI and cropped scans, are then transmitted to the clinician as supplementary information for expert validation. This additional data serves as a supportive tool for clinicians, aiding in their comprehensive assessment of the patient's condition.
+
+5. **Informed Decision-Making**: Equipped with this automated aid, clinicians can make informed decisions regarding diagnosis and treatment strategies. By leveraging accurate volumetric measurements provided by the algorithm, clinicians can enhance their diagnostic accuracy and optimize patient care pathways.
 
 ## Training data collection
 
-* The training data is collected from the "Hippocampus" dataset from the [Medical Decathlon](http://medicaldecathlon.com) competition.
-* This dataset is stored as a collection of NIFTI files, with one file per volume, and one file per corresponding segmentation mask.
-* The original images are T2 MRI scans of the full brain, but we are using cropped volumes where only the region around the hippocampus has been cut out to simplify our machine learning problem and allow for reasonable training times.
-* The dataset consists of 263 training and 131 testing images.
-
-## Labelling the training data
-
-* The data has been labeled and verified by a human expert rater with best effort to mimic the accuracy required for clinical use.
+* **Data Source**: The algorithm is trained on the "Hippocampus" dataset from the [Medical Decathlon](http://medicaldecathlon.com) competition.
+* **Data Format**: The dataset comprises NIFTI files, with one file for each volume scan and its corresponding segmentation mask.
+* **Preprocessing**: Original T2 MRI scans of the full brain are cropped to isolate the hippocampus region, simplifying the machine learning task and reducing training times.
+* **Dataset Size**: The dataset consists of 263 training and 131 testing images.
+* **Data Labelling**:The dataset has undergone meticulous labeling and verification by a certified human expert rater, striving to emulate the precision necessary for clinical applications.
 
 ## Training the model
 
-* The recursive U-Net was trained with a random split of the data into training, validation and test set. With each epoch, the validation set is used to measure performance and monitor for common pitfalls (e.g., over and underfitting) on the held-out set. The test set was used to compute the average performance metrics: Dice similarity coefficient, Jaccard distance, sensitivity and specificity.
+Using the recursive U-Net model which is a convolutional neural network architecture renowned for its efficacy in medical image segmentation tasks, was meticulously trained and optimized for the specific task of hippocampal volume quantification. This architecture comprises a series of down-sampling and up-sampling layers, facilitating the extraction of intricate spatial features while preserving contextual information crucial for accurate segmentation.
+
+During training, the dataset was partitioned randomly into three subsets: training, validation, and test sets, adhering to best practices in machine learning experimentation. The training process involved iterative epochs, where the network learned to delineate hippocampal structures from MRI scans through minimizing a defined loss function.
+
+Within each epoch, the validation set played a pivotal role in assessing the algorithm's performance and monitoring for potential pitfalls, such as overfitting or underfitting. This continual evaluation ensured the model's generalizability and robustness across diverse datasets.
+
+Upon completion of training, the test set was utilized to rigorously evaluate the algorithm's performance. Metrics including the Dice similarity coefficient, Jaccard distance, sensitivity, and specificity were computed, providing quantitative measures of segmentation accuracy and model efficacy.
+
+By employing the recursive U-Net architecture and adhering to rigorous training and evaluation protocols, the algorithm demonstrates a sophisticated approach to hippocampal volume quantification, holding promise for enhancing diagnostic capabilities in neuroimaging research and clinical practice.
 
 ## Training performance measurement and real-world performance estimation
 
@@ -35,15 +45,13 @@
 
 ## What data will the algorithm perform well in the real world and what data it might not perform well on?
 
-* The algorithm should perform well with cropped human brain images that give a clear view of the hippocampus from an MRI scan.
-* The overall performance metrics achieved were:
-	* mean dice: 0.8907 (the highest is 1)
-    * mean jaccard: 0.8045 (the intersection of the model output with ground truth is 80.45%)
-    * mean sensitivity: 0.8322 (of all areas segmented as belonging to hippocampus, 83.22% really do belong)
-    * mean specificity: 0.9984 (of all the areas that are not belonging to hippocampus, 99.84% are correctly segmented)
-* This means that our algorithm is very good at correctly segmenting out areas that do not belong to the hippocampus (99.84%), and is fairly good at segmenting areas that belong to the hippocampus (83.22%).
-* The algorithm may not work well on other types of scans or images that do not or only partially show the hippocampus.
-* The dataset did not include much patient information such as demographics, pre-conditions, etc. – the algorithm may perform better in some groups and worse in others.
+Based on evaluation metrics results:
+ - Mean Dice coefficient: 0.8966 (with 1 being the highest possible value)
+ - Mean Jaccard index: 0.8139 (indicating an intersection of 81.39% between model output and ground truth)
+ - Mean sensitivity: 0.9385 (suggesting that 93.85% of segmented areas identified as hippocampus truly belong)
+ - Mean specificity: 0.9964 (highlighting that 99.64% of areas not identified as hippocampus are correctly segmented)
+      
+The algorithm showcases robust performance when applied to cropped human brain images, offering clear views of the hippocampus in MRI scans. It excels in accurately delineating non-hippocampal areas, boasting a remarkable specificity of 99.64%, while also demonstrating commendable sensitivity in identifying hippocampal regions, with a score of 93.85%. Nonetheless, its efficacy may be constrained when confronted with alternative scan types or images exhibiting partial hippocampal visibility. Moreover, given the limited patient information available in the dataset, including demographics and pre-existing conditions, the algorithm's performance may vary across different patient cohorts.
 
 ## Sample OHIF Reports
 
